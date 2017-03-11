@@ -1,0 +1,79 @@
+--- buggy_program.c	2016-08-31 22:51:17.137297907 -0700
++++ fixed_program.c	2016-08-31 22:56:11.252857242 -0700
+@@ -77,6 +76,7 @@
+    while (!done)
+    {
+ 	  char* input;
++	  char nam[256];
+ 	  input = parse_word();
+ 	  if (input == NULL)
+ 	  {
+@@ -88,12 +88,25 @@
+ 	  }
+ 	  else
+ 	  {
+-		 cur = malloc(sizeof(struct entry));
+-		 cur->name = input;
++	     //char *nam;
++         //nam=(char*)malloc(sizeof(char));
++	     //strcpy(nam,input_1);
++	 
++		 cur = (struct entry*)malloc(sizeof(struct entry));
++         //cur->name=nam;
++         /***
++           fix to maintain cur->name 
++         ***/
++         cur->name=strdup(input);
+ 		 cur->next = NULL;
+ 
+-		 skip_space();
++		 if(!prev)
++		 {
++		    prev = (struct entry*)malloc(sizeof(struct entry));
++		    prev->next = NULL;
++         }
+ 
++		 skip_space();
+ 		 input = parse_word();
+ 		 if (input == NULL)
+ 		 {
+@@ -121,7 +134,11 @@
+ 			cur->amount = atoi(input);
+ 			if (head == NULL)
+ 			{
++			    /**
++			        Update Prev Pointer
++			    **/
+ 			   head = cur;
++			   prev=head;
+ 			}
+ 			else
+ 			{
+@@ -134,7 +152,7 @@
+    }
+ 
+    // head points to the start of the list
+-   return head->next;
++    return head;
+ }
+ 
+ int compare_entries(const void* f, const void* s)
+@@ -147,7 +165,8 @@
+    to_return = strcmp(first->name, second->name);
+    if (to_return == 0)
+    {
+-	  to_return = second->amount - first->amount;
++        // fix for ascending order 
++	  to_return = first->amount - second->amount;
+    }
+    return to_return;
+ }
+@@ -212,7 +231,7 @@
+ 
+    head = parse_input();
+ 
+-   if (head = NULL)
++   if (head == NULL)
+    {
+ 	  printf("Error, no input received.\n");
+ 	  return -1;
