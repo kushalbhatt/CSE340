@@ -1,0 +1,7 @@
+A key element of success in the course projects is to identify and debug common C bugs. I have compiled a list of some of the most common bugs that students have in their own code over the last two years.
+
+In this project, you will be given a program, buggy_program.c, which contains multiple bugs, along with a series of test cases with expected output. Your goal is to submit a patch to buggy_program.c which fixes all the bugs and passes all the test cases.
+
+You will be given a lexer that reads tokens from standard input. Your goal is to write, in C or C++, a program that reads all tokens from standard input by calling the lexer function getToken() and storing certain tokens in a linked list. After all tokens are read, your program will print out the content of the linked list in a specific order.
+
+The next section describes the lexer API. You also need to read the provided code in lexer.c and understand how the lexer works. You will only use the getToken() function in this project.
