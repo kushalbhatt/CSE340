@@ -1,0 +1,11 @@
+TYPE
+    x, y, z: INT;
+VAR
+    p, q : t1 ;
+{
+    
+    WHILE t1 {
+        a = a ;
+    }
+}
+
