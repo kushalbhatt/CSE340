@@ -1,0 +1,220 @@
+goal is to finish an incomplete parser and write a type checker for a given language. The input to your project will be a program and the output will be either error messages if there is a type mismatch or lists of equivalent types if there is no type mismatch. Your type checker will enforce semantic checks on the input program, and will be described in the following.
+
+Grammar Description
+
+program → decl body
+decl → type_decl_section var_decl_section
+type_decl_section → TYPE type_decl_list
+type_decl_section → ε
+type_decl_list → type_decl type_decl_list
+type_decl_list → type_decl
+type_decl → id_list COLON type_name SEMICOLON
+type_name → REAL
+type_name → INT
+type_name → BOOLEAN
+type_name → STRING
+type_name → LONG
+type_name → ID
+var_decl_section → VAR var_decl_list
+var_decl_section → ε
+var_decl_list → var_decl var_decl_list
+var_decl_list → var_decl
+var_decl → id_list COLON type_name SEMICOLON
+id_list → ID COMMA id_list
+id_list → ID
+body → LBRACE stmt_list RBRACE
+stmt_list → stmt stmt_list
+stmt_list → stmt
+stmt → while_stmt
+stmt → assign_stmt
+stmt → do_stmt
+stmt → switch_stmt
+while_stmt → WHILE condition body
+assign_stmt → ID EQUAL expr SEMICOLON
+do_stmt → DO body WHILE condition SEMICOLON
+switch_stmt → SWITCH ID LBRACE case_list RBRACE
+case_list → case case_list
+case_list → case
+case → CASE NUM COLON body
+expr → term PLUS expr
+expr → term MINUS expr
+expr → term
+term → factor MULT term
+term → factor DIV term
+term → factor
+factor → LPAREN expr RPAREN
+factor → NUM
+factor → REALNUM
+factor → ID
+condition → ID
+condition → primary relop primary
+primary → ID
+primary → NUM
+primary → REALNUM
+relop → GREATER
+relop → GTEQ
+relop → LESS
+relop → NOTEQUAL
+relop → LTEQ
+
+The tokens used in the grammar description are:
+
+TYPE = TYPE
+COLON = :
+SEMICOLON = ;
+REAL = REAL
+INT = INT
+BOOLEAN = BOOLEAN
+STRING = STRING
+LONG = LONG
+VAR = VAR
+COMMA = ,
+LBRACE = {
+RBRACE = }
+WHILE = WHILE
+EQUAL = =
+DO = DO
+SWITCH = SWITCH
+CASE = CASE
+PLUS = +
+MINUS = -
+MULT = *
+DIV = /
+LPAREN = (
+RPAREN = )
+GREATER = >
+GTEQ = >=
+LESS = <
+LTEQ = <=
+NOTEQUAL = <>
+ID = letter(letter | digit)*
+NUM = 0 | (digit digit*)
+REALNUM = NUM \. digit*
+
+Language Semantics
+
+As can be seen from the grammar, in this language types are first declared, then variables are declared, then the body of the program follows.
+Types
+
+The language has five built-in types: INT, REAL, BOOLEAN, STRING, and LONG.
+
+Programmers can declare types either explicitly or implicitly.
+
+    Explicit types are names that are not built-in types and that have their first appearance in the program as part of the id_list of a type_decl.
+
+    Implicit types are not built-in types and not explicit programmer-declared types. Implicit types have their first appearance as a type_name in a var_decl or a type_decl.
+
+Example
+
+Consider the following program written in our language:
+
+TYPE
+  a : INT;
+  b : a;
+VAR
+  x : b;
+  y : c;
+{
+  y = x;
+}
+
+There are three types declared by the programmer in this example, a, b, and c, where a and b are explicit types and c is an implicit type.
+Variables
+
+Programmers can declare variables either explicitly or implicitly.
+
+    Explicit variables are declared in an id_list of a var_decl.
+
+    A variable is declared implicitly if it is not declared explicitly but it appears in the program body.
+
+Example
+
+Consider the following program written in our language:
+
+TYPE
+  a : INT;
+  b : a;
+VAR
+  x : b;
+  y : c;
+{
+  y = x;
+  z = 10;
+  w = z * 5;
+}
+
+This program has four variables declared: x, y, z, and w, with x and y explicitly declared and z and w implicitly declared. Note that the implicitly declared variables z and w also have an implicitly declared type.
+Declaration vs. Use
+
+Any appearance of a name (type or variable) in the program is either a declaration or a use.
+
+The following lists all possible declarations of a name:
+
+    Any appearance of a name in the (left of COLON) id_list part of a type_decl is a type declaration
+    Any appearance of a name in the (left of COLON) id_list part of a var_decl is a variable declaration
+    The first appearance of a name in the entire program, if the name appears as type_name in a type_decl
+    The first appearance of a name in the entire program, if the name appears as type_name in a var_decl
+    The first appearance of a name inside the body of a program is a variable declaration
+
+Any other appearance of a name is considered a use of that name.
+
+Note that the above definitions exclude the built-in type names.
+
+Given the following example (the line numbers are not part of the input):
+
+ 1    TYPE
+ 2      a : INT;
+ 3      b : a;
+ 4    VAR
+ 5      x : b;
+ 6      y : c;
+ 7    {
+ 8      y = x;
+ 9      z = 10;
+10      w = z * 5;
+11    }
+
+We can categorize all appearances of names as declaration or use:
+
+    Line 2, the appearance of name a is a declaration
+    Line 3, the appearance of name b is a declaration
+    Line 3, the appearance of name a is a use
+    Line 5, the appearance of name x is a declaration
+    Line 5, the appearance of name b is a use
+    Line 6, the appearance of name y is a declaration
+    Line 6, the appearance of name c is a declaration
+    Line 8, the appearance of name y is a use
+    Line 8, the appearance of name x is a use
+    Line 9, the appearance of name z is a declaration
+    Line 10, the appearance of name w is a declaration
+    Line 10, the appearance of name z is a use
+
+Type System
+
+Our language uses structural equivalence for checking type equivalence.
+
+Implicit types (in variable declarations or on implicitly declared variables) will be inferred from the usage (in a simplified form of Hindley-Milner type inference).
+
+Here are all the type rules/constraints that your type checker will enforce (constraints are labeled from C1 to C5 for reference):
+
+    C1: The left hand side of an assignment should have the same type as the right hand side of that assignment
+
+    C2: The operands of an operation (PLUS, MINUS, MULT, and DIV) should have the same type (it can be any type, including STRING and BOOLEAN)
+
+    C3: The operands of a relational operator (see relop in grammar) should have the same type (it can be any type, including STRING and BOOLEAN)
+
+    C4: condition should be of type BOOLEAN
+
+    C5: The variable that follows the SWITCH keyword in switch_stmt should be of type INT
+
+    The type of an expr is the same as the type of its operands
+
+    The result of p1 relop p2 is of type BOOLEAN (assuming that p1 and p2 have the same type)
+
+    NUM constants are of type INT
+
+    REALNUM constants are of type REAL
+
+    If two types cannot be determined to be the same according to the above rules, the two types are different
+
+
