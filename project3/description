@@ -1,0 +1,37 @@
+Your goal is to write, in C or C++, a program that reads in a description of a context free grammar, then, depending on the command line argument passed to the program, outputs either the FIRST sets for all non-terminals in the grammar or FOLLOW sets for all non-terminals in the grammar or other information about the grammar (read on for details). The input grammar will be given on standard input (stdin), and your program should output to standard output (stdout). Specifications for the input grammar and expected output follow, and they must be followed precisely.
+
+The grammar specification has multiple sections separated by the # symbol. The grammar specification is terminated with ##. If there are any symbols after the ##, they are ignored. All grammar symbols, as well as the # and ## symbols, are whitespace-separated. The grammar description is a context-free grammar as follows:
+
+S → Non-terminal-list Rule-list DOUBLEHASH
+Non-terminal-list → ID-list HASH
+ID-list → ID ID-list | ID
+Rule-list → Rule Rule-list | Rule
+Rule → ID ARROW Right-hand-side HASH
+Right-hand-side → ID-list | ε
+
+The tokens used in the grammar description are:
+
+ID = letter(letter|digit)*
+HASH = #
+DOUBLEHASH = ##
+ARROW = ->
+
+where (note that digit is 0-9 and letter is all uppercase and lowercase letters, same as we have been using in class, however we define them here to be precise):
+
+digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+letter = a | b | c | d | e | f | g | h | i | j | k | l | m | n | o
+         | p | q | r | s | t | u | v | w | x | y | z | A | B | C | D | E
+         | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V
+         | W | X | Y | Z
+
+
+Task 0: Information about the grammar
+
+When a 0 is passed in as an argument to the program it will print out a summary of the CFG input. The first line of the summary will list all the non-terminals, which will be delimited by a space. The non-terminals will be listed in the order they are found in the input. After the last non-terminal, the line will be ended with a new line character.
+
+The subsequent lines of the summary will create a line for each unique terminal. On the terminal lines, a terminal will be followed by colon :; a space; an integer, which represents the number of rules in which that terminal appears on the right-side; and a new line character. The terminal lines must be in dictionary order (specifically, the C library function strcmp from string.h).
+
+
+Task1: First Sets
+Task2: Follow Sets
